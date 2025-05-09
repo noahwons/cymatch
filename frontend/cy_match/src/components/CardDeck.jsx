@@ -38,7 +38,7 @@ export default function CardDeck({ }) {
         ) : jobs.length === 0 ? (
             <p className="text-center text-gray-600">No more jobs to show!</p>
         ) : (
-            <div className="relative w-80 h-96 mx-auto overflow-hidden">
+            <div className="relative mx-auto overflow-hidden">
                 {jobs.map((job, i) => (
                     <JobCard
                         key={job.id}

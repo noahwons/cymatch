@@ -10,7 +10,7 @@ function App() {
   const [jobs, setJobs] = useState([]);
   const [savedJobs, setSavedJobs] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [view, setView] = useState('home'); // "home", "saved", "profile"
+  const [view, setView] = useState('home');
 
   useEffect(() => {
     const loadJobs = async () => {
@@ -62,14 +62,29 @@ function App() {
             ) : jobs.length === 0 ? (
               <p className="text-center text-gray-600">No more jobs to show!</p>
             ) : (
-              jobs.map((job) => (
-                <JobCard
-                  key={job.id}
-                  job={job}
-                  onSwipeLeft={handleSwipeLeft}
-                  onSwipeRight={handleSwipeRight}
-                />
-              ))
+              <div className="relative h-[420px]">
+                {jobs
+                  .slice()
+                  .reverse()
+                  .map((job, index) => (
+                    <div
+                      key={job.id}
+                      className="absolute inset-0"
+                      style={{
+                        zIndex: index,
+                        transform: `translateY(${index * 2}px) scale(${1 - index * 0.01})`,
+                      }}
+                    >
+                      {index === jobs.length - 1 && (
+                        <JobCard
+                          job={job}
+                          onSwipeLeft={handleSwipeLeft}
+                          onSwipeRight={handleSwipeRight}
+                        />
+                      )}
+                    </div>
+                  ))}
+              </div>
             )}
           </>
         ) : view === 'saved' ? (
@@ -83,4 +98,3 @@ function App() {
 }
 
 export default App;
-

@@ -58,7 +58,7 @@ function App() {
         {view === 'home' ? (
           <CardDeck savedJobs={savedJobs} setSavedJobs={setSavedJobs} />
         ) : view === 'saved' ? (
-          <SavedJobs savedJobs={savedJobs} />
+          <SavedJobs />
         ) : view === 'profile' ? (
           <Profile />
         ) : null

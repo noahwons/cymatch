@@ -15,7 +15,7 @@ app.listen(port, () => {
         host, port);
 });
 
-const { MongoClient } = require("mongodb");
+const { MongoClient, ObjectId } = require("mongodb");
 // MongoDB
 const url = "mongodb://127.0.0.1:27017";
 const dbName = "cymatch";
@@ -23,40 +23,110 @@ const client = new MongoClient(url);
 const db = client.db(dbName);
 
 app.get("/jobs", async (req, res) => {
-    await client.connect();
     try {
+        await client.connect();
         const recent = await db
             .collection("jobs")
-            .find({})
+            .find({ status: { $nin: ["saved", "dismissed"] } })
             .sort({ date: -1 })
             .limit(1)
             .toArray();
-        res.json(recent);
+
+        const transformed = recent.map(job => {
+            // Safely convert _id to a hex string (or leave it if already a string)
+            let id;
+            if (job._id && typeof job._id.toHexString === "function") {
+                id = job._id.toHexString();
+            } else {
+                id = String(job._id);
+            }
+            return {
+                ...job,
+                _id: id,    // now always a string
+            };
+        });
+
+        res.json(transformed);
     } catch (err) {
         console.error("GET /jobs failed:", err);
         res.status(500).json({ error: "Internal server error" });
     }
 });
 
-app.post("/job/:id/save", async (req, res) => {
+app.get("/jobs/saved", async (req, res) => {
     try {
         await client.connect();
-        const newDocument = {
-            id: Number(req.body.id),
-            name: req.body.name,
-            price: req.body.price,
-            description: req.body.description,
-            imageUrl: req.body.imageUrl,
-        };
-        const result = await db.collection("jobs").insertOne(newDocument);
-        res.status(200);
-        res.send(result);
-    } catch (error) {
-        console.error("Could not add the new Job" + error);
-        res.status(500);
-        res.send("Error adding new job");
-    } finally {
-        await client.close();
+        const savedList = await db
+            .collection("jobs")
+            .find({ status: "saved" })
+            .sort({ savedAt: -1 })
+            .limit(3)
+            .toArray();
+
+        const transformed = savedList.map(job => {
+            let id;
+            if (job._id && typeof job._id.toHexString === "function") {
+                id = job._id.toHexString();
+            } else {
+                id = String(job._id);
+            }
+            return {
+                ...job,
+                _id: id,
+            };
+        });
+
+        res.json(transformed);
+    } catch (err) {
+        console.error("GET /jobs/saved failed:", err);
+        res.status(500).json({ error: "Internal server error" });
+    }
+});
+
+function buildIdFilter(raw) {
+    // hex-style ObjectId?
+    if (ObjectId.isValid(raw) && String(new ObjectId(raw)) === raw) {
+        return { _id: new ObjectId(raw) };
+    }
+    // decimal string?
+    if (/^\d+$/.test(raw)) {
+        return { _id: Number(raw) };
+    }
+    // otherwise invalid
+    return null;
+}
+
+app.post("/job/:id/save", async (req, res) => {
+    const filter = buildIdFilter(req.params.id);
+    if (!filter) return res.status(400).json({ error: "Invalid job ID" });
+
+    try {
+        await client.connect();
+        const result = await db
+            .collection("jobs")
+            .updateOne(filter, { $set: { status: "saved", savedAt: new Date() } });
+        if (!result.matchedCount) return res.status(404).json({ error: "Job not found" });
+        res.json({ success: true });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Internal server error" });
+    }
+});
+
+app.post("/job/:id/dismiss", async (req, res) => {
+    const filter = buildIdFilter(req.params.id);
+    if (!filter) return res.status(400).json({ error: "Invalid job ID" });
+
+    try {
+        await client.connect();
+        const result = await db
+            .collection("jobs")
+            .updateOne(filter, { $set: { status: "dismissed", dismissedAt: new Date() } });
+        if (!result.matchedCount) return res.status(404).json({ error: "Job not found" });
+        res.json({ success: true });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: "Internal server error" });
     }
 });
 

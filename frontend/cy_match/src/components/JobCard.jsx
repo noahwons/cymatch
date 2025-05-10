@@ -30,13 +30,13 @@ const JobCard = ({ job, onSwipeLeft, onSwipeRight }) => {
       <div className="flex justify-between">
         <button
           className="px-4 py-2 bg-red-500 text-white rounded-xl"
-          onClick={() => onSwipeLeft(job.id)}
+          onClick={onSwipeLeft}
         >
           Dismiss
         </button>
         <button
           className="px-4 py-2 bg-green-500 text-white rounded-xl"
-          onClick={() => onSwipeRight(job.id)}
+          onClick={onSwipeRight}
         >
           Save
         </button>

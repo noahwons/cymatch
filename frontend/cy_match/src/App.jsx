@@ -11,6 +11,7 @@ import SavedJobs from './components/SavedJobs';
 import Profile from './components/Profile';
 import TipBanner from './components/TipBanner';
 import Login from './components/Login';
+import Register from './components/Register';
 
 
 function App() {
@@ -68,6 +69,8 @@ function App() {
           <Profile />
         ) : view === 'login' ? (
           <Login setLogin={setLogin} setView={setView} />
+        ) : view === 'register' ? (
+          <Register setLogin={setLogin} setView={setView} />
         ) : null}
 
       </main>

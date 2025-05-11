@@ -5,7 +5,6 @@ const Login = ({ setLogin, setView }) => {
         <div className="bg-white shadow-lg rounded-xl p-6 mb-6 max-w-md mx-auto">
             <h2 className="text-xl font-bold mb-4">Login</h2>
 
-            {/* space-y-4 adds 1rem gap between each child */}
             <div className="space-y-4">
                 <input
                     type="text"
@@ -22,15 +21,26 @@ const Login = ({ setLogin, setView }) => {
                     required
                 />
 
-                <button
-                    className="w-full px-4 py-2 bg-green-500 text-white rounded-xl"
-                    onClick={() => {
-                        setLogin(true)
-                        setView('home')
-                    }}
-                >
-                    Login
-                </button>
+
+                <div className="flex justify-between">
+                    <button
+                        className="px-4 py-2 bg-green-500 text-white rounded-xl"
+                        onClick={() => {
+                            setLogin(true)
+                            setView('home')
+                        }}
+                    >
+                        Login
+                    </button>
+                    <button
+                        className="px-4 py-2 bg-green-500 text-white rounded-xl"
+                        onClick={() => {
+                            setView('register')
+                        }}
+                    >
+                        Register
+                    </button>
+                </div>
             </div>
         </div>
     )

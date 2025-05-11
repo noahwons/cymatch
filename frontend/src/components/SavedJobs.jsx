@@ -65,12 +65,12 @@ const SavedJobs = ({ }) => {
             <h3 className="text-md text-gray-600 mb-2">{job.company}</h3>
             <div className="flex justify-between">
               <button
-                className="px-4 py-2 bg-blue-500 text-white rounded-xl"
+                className="px-4 py-2 bg-gray-800 text-white rounded"
                 onClick={() => window.open(job.url, '_blank')}
               >Visit
               </button>
               <button
-                className="px-4 py-2 bg-blue-500 text-white rounded-xl"
+                className="px-4 py-2 bg-red-700 text-white rounded"
                 onClick={() => handleRemove(job._id)}
               >Remove
               </button>

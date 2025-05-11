@@ -21,21 +21,36 @@ const JobCard = ({ job, onSwipeLeft, onSwipeRight }) => {
     }
   }
 
+  function simplifyDescription(html, maxLen = 150) {
+    const tmp = document.createElement('div');
+    tmp.innerHTML = html;
+    let text = tmp.textContent || tmp.innerText || '';
+
+    text = text.replace(/\s+/g, ' ').trim();
+
+    if (text.length > maxLen) {
+      return text.slice(0, maxLen).trimEnd() + '…';
+    }
+    return text;
+  }
+
   return (
     <div className="bg-white shadow-lg rounded-xl p-6 mb-6 max-w-md mx-auto">
       <h2 className="text-xl font-bold mb-2">{job.title}</h2>
       <h3 className="text-md text-gray-600 mb-2">{job.company}</h3>
-      <img src={job.image} alt={job.title} className="w-full h-48 object-cover rounded-lg mb-4" />
+      <p className="text-gray-700 mb-4">
+        {simplifyDescription(job.description)}
+      </p>
       <h3 className="text-md text-gray-600 mb-2">{timeFromNow(job.date)}</h3>
       <div className="flex justify-between">
         <button
-          className="px-4 py-2 bg-red-500 text-white rounded-xl"
+          className="px-4 py-2 bg-red-600 text-white rounded"
           onClick={onSwipeLeft}
         >
           Dismiss
         </button>
         <button
-          className="px-4 py-2 bg-green-500 text-white rounded-xl"
+          className="px-4 py-2 bg-green-600 text-white rounded"
           onClick={onSwipeRight}
         >
           Save

@@ -21,30 +21,30 @@ function App() {
   const [login, setLogin] = useState(false);
 
   return (
-    <div className="fixed inset-0 flex flex-col bg-gray-50 text-gray-900 h-screen w-screen">
-      <header className="p-4 shadow-md bg-white">
-        <h1 className="text-2xl font-bold">CyMatch</h1>
+    <div className="flex flex-col bg-gray-50 text-gray-900 min-h-screen w-full">
+      <header className="p-4 shadow-md bg-white flex justify-center">
+        <h1 className="text-5xl font-bold">CyMatch</h1>
       </header>
 
       {login ? (
-        <nav className="space-x-4 mt-4">
+        <nav className="flex justify-center space-x-4 mt-4">
           <button
             onClick={() => setView('home')}
-            className="bg-gray-600 text-white shadow-md hover:bg-gray-700 px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-gray-400"
+            className="bg-gray-900 text-white shadow-md hover:bg-gray-700 px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-gray-400"
           >
             Home
           </button>
 
           <button
             onClick={() => setView('saved')}
-            className="bg-gray-600 text-white shadow-md hover:bg-gray-700 px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-gray-400"
+            className="bg-gray-900 text-white shadow-md hover:bg-gray-700 px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-gray-400"
           >
             Saved Jobs
           </button>
 
           <button
             onClick={() => setView('profile')}
-            className="bg-gray-600 text-white shadow-md hover:bg-gray-700 px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-gray-400"
+            className="bg-gray-900 text-white shadow-md hover:bg-gray-700 px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-gray-400"
           >
             Profile
           </button>

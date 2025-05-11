@@ -1,97 +1,78 @@
 import { useState, useEffect } from 'react';
 import './App.css';
 import JobCard from './components/JobCard';
+import SwipeableCard from './components/SwipeableCard';
+import { fetchJobs, deleteJob, saveJob } from './services/api';
+
+import aliceImg from './assets/alice.jpeg';
+import bobImg from './assets/bob.jpeg';
+import CardDeck from './components/CardDeck';
 import SavedJobs from './components/SavedJobs';
 import Profile from './components/Profile';
 import TipBanner from './components/TipBanner';
-import { fetchJobs, deleteJob, saveJob } from './services/api';
+import Login from './components/Login';
+import Register from './components/Register';
+
 
 function App() {
-  const [jobs, setJobs] = useState([]);
+
+  const [view, setView] = useState('login');
   const [savedJobs, setSavedJobs] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [view, setView] = useState('home');
-
-  useEffect(() => {
-    const loadJobs = async () => {
-      const data = await fetchJobs();
-      setJobs(data);
-      setLoading(false);
-    };
-
-    loadJobs();
-  }, []);
-
-  const handleSwipeLeft = async (jobId) => {
-    await deleteJob(jobId);
-    setJobs(jobs.filter((job) => job.id !== jobId));
-  };
-
-  const handleSwipeRight = async (jobId) => {
-    const jobToSave = jobs.find((job) => job.id === jobId);
-    if (jobToSave) {
-      setSavedJobs([...savedJobs, jobToSave]);
-    }
-    await saveJob(jobId);
-    setJobs(jobs.filter((job) => job.id !== jobId));
-  };
+  const [login, setLogin] = useState(false);
 
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-900">
-      <header className="p-4 shadow-md bg-white flex justify-between items-center">
+    <div className="fixed inset-0 flex flex-col bg-gray-50 text-gray-900 h-screen w-screen">
+      <header className="p-4 shadow-md bg-white">
         <h1 className="text-2xl font-bold">CyMatch</h1>
-        <nav className="space-x-4">
-          <button onClick={() => setView('home')} className="text-blue-500 hover:underline">
+      </header>
+
+      {login ? (
+        <nav className="space-x-4 mt-4">
+          <button
+            onClick={() => setView('home')}
+            className="bg-gray-600 text-white shadow-md hover:bg-gray-700 px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-gray-400"
+          >
             Home
           </button>
-          <button onClick={() => setView('saved')} className="text-blue-500 hover:underline">
+
+          <button
+            onClick={() => setView('saved')}
+            className="bg-gray-600 text-white shadow-md hover:bg-gray-700 px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-gray-400"
+          >
             Saved Jobs
           </button>
-          <button onClick={() => setView('profile')} className="text-blue-500 hover:underline">
+
+          <button
+            onClick={() => setView('profile')}
+            className="bg-gray-600 text-white shadow-md hover:bg-gray-700 px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-gray-400"
+          >
             Profile
           </button>
         </nav>
-      </header>
+      ) : null}
 
-      <main className="p-4">
+
+      {view === 'home' ? (
+        <div className='flex-grow flex items-center justify-center p-4'>
+          <TipBanner />
+        </div>
+      ) : null}
+
+
+
+      <main className="flex-grow flex items-center justify-center p-4">
         {view === 'home' ? (
-          <>
-            <TipBanner />
-            {loading ? (
-              <p className="text-center text-gray-600">Loading jobs...</p>
-            ) : jobs.length === 0 ? (
-              <p className="text-center text-gray-600">No more jobs to show!</p>
-            ) : (
-              <div className="relative h-[420px]">
-                {jobs
-                  .slice()
-                  .reverse()
-                  .map((job, index) => (
-                    <div
-                      key={job.id}
-                      className="absolute inset-0"
-                      style={{
-                        zIndex: index,
-                        transform: `translateY(${index * 2}px) scale(${1 - index * 0.01})`,
-                      }}
-                    >
-                      {index === jobs.length - 1 && (
-                        <JobCard
-                          job={job}
-                          onSwipeLeft={handleSwipeLeft}
-                          onSwipeRight={handleSwipeRight}
-                        />
-                      )}
-                    </div>
-                  ))}
-              </div>
-            )}
-          </>
+          <CardDeck savedJobs={savedJobs} setSavedJobs={setSavedJobs} />
         ) : view === 'saved' ? (
-          <SavedJobs savedJobs={savedJobs} />
+          <SavedJobs />
         ) : view === 'profile' ? (
           <Profile />
+        ) : view === 'login' ? (
+          <Login setLogin={setLogin} setView={setView} />
+        ) : view === 'register' ? (
+          <Register setLogin={setLogin} setView={setView} />
         ) : null}
+
       </main>
     </div>
   );

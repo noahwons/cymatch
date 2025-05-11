@@ -10,12 +10,14 @@ import CardDeck from './components/CardDeck';
 import SavedJobs from './components/SavedJobs';
 import Profile from './components/Profile';
 import TipBanner from './components/TipBanner';
+import Login from './components/Login';
 
 
 function App() {
 
-  const [view, setView] = useState('home');
+  const [view, setView] = useState('login');
   const [savedJobs, setSavedJobs] = useState([]);
+  const [login, setLogin] = useState(false);
 
   return (
     <div className="fixed inset-0 flex flex-col bg-gray-50 text-gray-900 h-screen w-screen">
@@ -23,28 +25,31 @@ function App() {
         <h1 className="text-2xl font-bold">CyMatch</h1>
       </header>
 
-      <nav className="space-x-4 mt-4">
-        <button
-          onClick={() => setView('home')}
-          className="bg-gray-600 text-white shadow-md hover:bg-gray-700 px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-gray-400"
-        >
-          Home
-        </button>
+      {login ? (
+        <nav className="space-x-4 mt-4">
+          <button
+            onClick={() => setView('home')}
+            className="bg-gray-600 text-white shadow-md hover:bg-gray-700 px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-gray-400"
+          >
+            Home
+          </button>
 
-        <button
-          onClick={() => setView('saved')}
-          className="bg-gray-600 text-white shadow-md hover:bg-gray-700 px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-gray-400"
-        >
-          Saved Jobs
-        </button>
+          <button
+            onClick={() => setView('saved')}
+            className="bg-gray-600 text-white shadow-md hover:bg-gray-700 px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-gray-400"
+          >
+            Saved Jobs
+          </button>
 
-        <button
-          onClick={() => setView('profile')}
-          className="bg-gray-600 text-white shadow-md hover:bg-gray-700 px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-gray-400"
-        >
-          Profile
-        </button>
-      </nav>
+          <button
+            onClick={() => setView('profile')}
+            className="bg-gray-600 text-white shadow-md hover:bg-gray-700 px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-gray-400"
+          >
+            Profile
+          </button>
+        </nav>
+      ) : null}
+
 
       {view === 'home' ? (
         <div className='flex-grow flex items-center justify-center p-4'>
@@ -61,8 +66,10 @@ function App() {
           <SavedJobs />
         ) : view === 'profile' ? (
           <Profile />
-        ) : null
-        }
+        ) : view === 'login' ? (
+          <Login setLogin={setLogin} setView={setView} />
+        ) : null}
+
       </main>
     </div>
   );

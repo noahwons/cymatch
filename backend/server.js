@@ -3,9 +3,11 @@ var cors = require("cors");
 var app = express();
 var fs = require("fs");
 var bodyParser = require("body-parser");
+const usersRouter = require("./users");
 
 app.use(cors());
 app.use(bodyParser.json());
+app.use("/users", usersRouter);
 
 const port = "8080";
 const host = "localhost";
@@ -16,6 +18,7 @@ app.listen(port, () => {
 });
 
 const { MongoClient, ObjectId } = require("mongodb");
+
 // MongoDB
 const url = "mongodb://127.0.0.1:27017";
 const dbName = "cymatch";

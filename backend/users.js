@@ -1,6 +1,7 @@
 const express = require("express");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const multer = require('multer');
 const router = express.Router();
 
 const { MongoClient, ObjectId } = require("mongodb");
@@ -64,5 +65,65 @@ router.post("/login", async (req, res) => {
         res.status(500).json({ error: "Internal server error" });
     }
 });
+
+router.use((req, res, next) => {
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) return res.status(401).json({ error: 'No token' });
+    try {
+        const payload = jwt.verify(token, JWT_SECRET);
+        req.userId = payload.sub;
+        next();
+    } catch {
+        return res.status(403).json({ error: 'Invalid token' });
+    }
+});
+
+router.get('/profile', async (req, res) => {
+    try {
+        const user = await db.collection('users').findOne(
+            { _id: new ObjectId(req.userId) },
+            { projection: { passwordHash: 0 } }
+        );
+        if (!user) return res.status(404).json({ error: 'Not found' });
+        res.json({
+            name: user.name || '',
+            email: user.email,
+            resumeUrl: user.resumeUrl || ''
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+});
+
+const upload = multer({ dest: 'uploads/' });  // or configure a cloud-storage adapter
+
+// in usersRouter, **after** your JWT-check middleware:
+router.put(
+    '/profile',
+    upload.single('resume'),
+    async (req, res) => {
+        try {
+            const { name, email } = req.body;
+            let update = { name, email };
+
+            if (req.file) {
+                // If you’re hosting images locally:
+                const resumeUrl = `/uploads/${req.file.filename}`;
+                update.resumeUrl = resumeUrl;
+            }
+
+            await db.collection('users').updateOne(
+                { _id: new ObjectId(req.userId) },
+                { $set: update }
+            );
+            res.json({ success: true, ...update });
+        } catch (err) {
+            console.error(err);
+            res.status(500).json({ error: 'Internal server error' });
+        }
+    }
+);
+
 
 module.exports = router;

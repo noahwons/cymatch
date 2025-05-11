@@ -4,10 +4,14 @@ var app = express();
 var fs = require("fs");
 var bodyParser = require("body-parser");
 const usersRouter = require("./users");
+const path = require("path");
+
 
 app.use(cors());
 app.use(bodyParser.json());
 app.use("/users", usersRouter);
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 
 const port = "8080";
 const host = "localhost";
@@ -63,7 +67,6 @@ app.get("/jobs/saved", async (req, res) => {
             .collection("jobs")
             .find({ status: "saved" })
             .sort({ savedAt: -1 })
-            .limit(3)
             .toArray();
 
         const transformed = savedList.map(job => {

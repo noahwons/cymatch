@@ -1,10 +1,13 @@
 const express = require("express");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const multer = require('multer');
 const router = express.Router();
 const fetch = require("node-fetch");
 const { MongoClient, ObjectId } = require("mongodb");
+const multer = require('multer');
+
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
 
 const MONGO_URL = "mongodb://127.0.0.1:27017";
 const dbName = "cymatch";
@@ -92,10 +95,14 @@ router.get('/profile', async (req, res) => {
             { projection: { passwordHash: 0 } }
         );
         if (!user) return res.status(404).json({ error: 'Not found' });
+        const resumeUrl = user.resumeUploadId
+            ? `/uploads/${user.resumeUploadId.toHexString()}`
+            : null;
+
         res.json({
             name: user.name || '',
             email: user.email,
-            resumeUrl: user.resumeUrl || ''
+            resumeUrl
         });
     } catch (err) {
         console.error(err);
@@ -103,32 +110,42 @@ router.get('/profile', async (req, res) => {
     }
 });
 
-const upload = multer({ dest: 'uploads/' });
-
 router.put(
-    '/profile',
-    upload.single('resume'),
+    "/profile",
+    upload.single("resume"),
     async (req, res) => {
-        try {
-            const { name, email } = req.body;
-            let update = { name, email };
+        const { name, email } = req.body;
+        const update = { name, email };
 
-            if (req.file) {
-                const resumeUrl = `/uploads/${req.file.filename}`;
-                update.resumeUrl = resumeUrl;
-            }
-
-            await db.collection('users').updateOne(
-                { _id: new ObjectId(req.userId) },
-                { $set: update }
-            );
-            res.json({ success: true, ...update });
-        } catch (err) {
-            console.error(err);
-            res.status(500).json({ error: 'Internal server error' });
+        if (req.file) {
+            const fileDoc = {
+                userId: new ObjectId(req.userId),
+                filename: req.file.originalname,
+                contentType: req.file.mimetype,
+                data: req.file.buffer,
+                createdAt: new Date(),
+            };
+            const result = await db.collection("uploads").insertOne(fileDoc);
+            update.resumeUploadId = result.insertedId;
+            update.resumeUrl = `/uploads/${result.insertedId.toHexString()}`;
         }
+
+        await db.collection("users").updateOne(
+            { _id: new ObjectId(req.userId) },
+            { $set: update }
+        );
+
+        res.json({
+            success: true,
+            name: update.name,
+            email: update.email,
+            resumeUrl: update.resumeUploadId
+                ? `/uploads/${update.resumeUploadId.toHexString()}`
+                : ""
+        });
     }
 );
+
 
 
 module.exports = router;

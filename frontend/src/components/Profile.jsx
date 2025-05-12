@@ -13,24 +13,15 @@ const Profile = () => {
     const token = localStorage.getItem('jwt');
     if (!token) return;
 
-    async function loadProfile() {
+    (async () => {
       try {
         const res = await fetch('http://localhost:8080/users/profile', {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
+          headers: { Authorization: `Bearer ${token}` }
         });
-        if (!res.ok) {
-          console.error('Failed to fetch profile', res.status);
-          return;
-        }
+        if (!res.ok) throw new Error(res.statusText);
+
         const data = await res.json();
-        setProfile({
-          name: data.name || '',
-          email: data.email || '',
-          resumeFile: null
-        });
+        setProfile({ name: data.name, email: data.email, resumeFile: null });
         setResumePreview(
           data.resumeUrl
             ? `http://localhost:8080${data.resumeUrl}`
@@ -38,11 +29,9 @@ const Profile = () => {
         );
         setIsEditing(false);
       } catch (err) {
-        console.error('Error loading profile:', err);
+        console.error('Failed to load profile:', err);
       }
-    }
-
-    loadProfile();
+    })();
   }, []);
 
 
@@ -61,8 +50,9 @@ const Profile = () => {
 
   const handleDragOver = (e) => e.preventDefault();
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async e => {
     e.preventDefault();
+
     const token = localStorage.getItem('jwt');
     if (!token) return alert('Not logged in');
 
@@ -73,24 +63,31 @@ const Profile = () => {
       form.append('resume', profile.resumeFile);
     }
 
-    const res = await fetch('http://localhost:8080/users/profile', {
-      method: 'PUT',
-      headers: {
-        'Authorization': `Bearer ${token}`
-      },
-      body: form
-    });
+    try {
+      const res = await fetch('http://localhost:8080/users/profile', {
+        method: 'PUT',
+        headers: { Authorization: `Bearer ${token}` },
+        body: form,
+      });
+      if (!res.ok) throw new Error(await res.text());
 
-    if (!res.ok) {
-      console.error('Save failed', await res.text());
-      return;
+      const saved = await res.json();
+
+      setProfile({
+        name: saved.name,
+        email: saved.email,
+        resumeFile: null,
+      });
+      setResumePreview(
+        saved.resumeUrl
+          ? `http://localhost:8080${saved.resumeUrl}`
+          : null
+      );
+      setIsEditing(false);
+    } catch (err) {
+      console.error('Save failed:', err);
+      alert('Save failed: ' + err.message);
     }
-
-    const saved = await res.json();
-    setProfile({ name: saved.name, email: saved.email, resumeFile: null });
-    setResumePreview(saved.resumeUrl || null);
-
-    setIsEditing(false);
   };
 
 
@@ -162,11 +159,7 @@ const Profile = () => {
                 const file = e.target.files[0];
                 if (file) {
                   setProfile(p => ({ ...p, resumeFile: file }));
-                  setResumePreview(
-                    saved.resumeUrl
-                      ? `http://localhost:8080${saved.resumeUrl}`
-                      : null
-                  );
+                  setResumePreview(URL.createObjectURL(file));
                 }
               }}
               className="hidden"

@@ -36,6 +36,8 @@ async function fetchAndStoreJobs() {
 ; (async () => {
     await client.connect();
 
+
+
     await fetchAndStoreJobs();
 
     cron.schedule("0 * * * *", fetchAndStoreJobs);
@@ -50,7 +52,25 @@ async function fetchAndStoreJobs() {
     app.use(cors());
     app.use(bodyParser.json());
     app.use("/users", usersRouter);
-    app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+    app.get('/uploads/:id', async (req, res) => {
+        try {
+            const file = await db
+                .collection('uploads')
+                .findOne({ _id: new ObjectId(req.params.id) });
+
+            if (!file) return res.status(404).end();
+
+            const buffer = file.data.buffer ? file.data.buffer : file.data;
+
+            res.set('Content-Type', file.contentType);
+            res.send(buffer);
+        } catch (err) {
+            console.error("Error serving upload:", err);
+            res.status(400).json({ error: 'Invalid upload ID' });
+        }
+    });
+
 
     app.get("/jobs", async (req, res) => {
         try {

@@ -26,25 +26,24 @@ const Profile = () => {
           return;
         }
         const data = await res.json();
-        // data should be { name, email, resumeUrl }
         setProfile({
           name: data.name || '',
           email: data.email || '',
-          resumeFile: null               // we never pre-load the File object
+          resumeFile: null
         });
         setResumePreview(
           data.resumeUrl
             ? `http://localhost:8080${data.resumeUrl}`
             : null
         );
-        setIsEditing(false);             // show the read-only view
+        setIsEditing(false);
       } catch (err) {
         console.error('Error loading profile:', err);
       }
     }
 
     loadProfile();
-  }, []); // run once on mount
+  }, []);
 
 
   const handleChange = (e) => {
@@ -67,7 +66,6 @@ const Profile = () => {
     const token = localStorage.getItem('jwt');
     if (!token) return alert('Not logged in');
 
-    // build a FormData since you may have a file
     const form = new FormData();
     form.append('name', profile.name);
     form.append('email', profile.email);
@@ -79,7 +77,6 @@ const Profile = () => {
       method: 'PUT',
       headers: {
         'Authorization': `Bearer ${token}`
-        // **do not** set Content-Type: browser will do multipart boundary for you
       },
       body: form
     });
@@ -89,7 +86,6 @@ const Profile = () => {
       return;
     }
 
-    // grab back your saved fields (optional)
     const saved = await res.json();
     setProfile({ name: saved.name, email: saved.email, resumeFile: null });
     setResumePreview(saved.resumeUrl || null);
@@ -99,7 +95,6 @@ const Profile = () => {
 
 
   if (!isEditing) {
-    // Read-only view, centered
     return (
       <div className="w-full max-w-lg mx-auto space-y-4">
         <div className="w-full max-w-lg space-y-4">
@@ -127,7 +122,6 @@ const Profile = () => {
     );
   }
 
-  // Edit mode, centered
   return (
     <div className="flex items-center justify-center py-12">
       <div className="w-full max-w-lg">

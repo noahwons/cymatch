@@ -96,9 +96,8 @@ router.get('/profile', async (req, res) => {
     }
 });
 
-const upload = multer({ dest: 'uploads/' });  // or configure a cloud-storage adapter
+const upload = multer({ dest: 'uploads/' });
 
-// in usersRouter, **after** your JWT-check middleware:
 router.put(
     '/profile',
     upload.single('resume'),
@@ -108,7 +107,6 @@ router.put(
             let update = { name, email };
 
             if (req.file) {
-                // If you’re hosting images locally:
                 const resumeUrl = `/uploads/${req.file.filename}`;
                 update.resumeUrl = resumeUrl;
             }

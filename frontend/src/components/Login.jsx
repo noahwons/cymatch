@@ -22,9 +22,9 @@ const Login = ({ setLogin, setView }) => {
             }
 
             const { token } = await res.json();
-            localStorage.setItem('jwt', token);        // persist your JWT
-            setLogin(true);                             // flip “logged in”
-            setView('home');                            // go to home screen
+            localStorage.setItem('jwt', token);
+            setLogin(true);
+            setView('home');
         } catch (err) {
             setError(err.message);
         }

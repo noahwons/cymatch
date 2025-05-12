@@ -6,7 +6,6 @@ const SavedJobs = ({ }) => {
   const [savedJobs, setSavedJobs] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // TODO: Create get for all saved jobs in server.js
   function getSavedJobs() {
     fetch('http://localhost:8080/jobs/saved')
       .then((response) => response.json())
@@ -40,11 +39,6 @@ const SavedJobs = ({ }) => {
   };
 
   const handleRemove = async (jobId) => {
-    await handleDismiss(jobId);
-    getSavedJobs();
-  };
-
-  const handleSwipeLeft = async (jobId) => {
     await handleDismiss(jobId);
     getSavedJobs();
   };

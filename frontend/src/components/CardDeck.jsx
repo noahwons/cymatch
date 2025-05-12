@@ -1,16 +1,11 @@
-// CardDeck.jsx
 import React from 'react';
 import JobCard from './JobCard';
 import { useState, useEffect } from 'react';
-import { fetchJobs, deleteJob, saveJob } from '../services/api';
 
 export default function CardDeck({ savedJobs, setSavedJobs }) {
     const [jobs, setJobs] = useState([]);
     const [loading, setLoading] = useState(true);
 
-    // keep track of remaining cards
-    // optional: track last swipe direction
-    const [lastDirection, setLastDirection] = useState();
 
     function getjobs() {
         setLoading(true);
@@ -27,8 +22,7 @@ export default function CardDeck({ savedJobs, setSavedJobs }) {
             })
             .catch(err => {
                 console.error("Error fetching jobs:", err);
-                // optionally show an error UI or toast
-                setJobs([]);   // avoid jobs.map blowing up
+                setJobs([]);
             })
             .finally(() => {
                 setLoading(false);
@@ -36,13 +30,7 @@ export default function CardDeck({ savedJobs, setSavedJobs }) {
     }
 
     useEffect(() => {
-        const loadJobs = async () => {
-            const data = await fetchJobs();
-            setJobs(data);
-            setLoading(false);
-        };
         getjobs();
-        //loadJobs();
     }, []);
 
     const handleSwipeLeft = async (jobId) => {
@@ -63,13 +51,11 @@ export default function CardDeck({ savedJobs, setSavedJobs }) {
             const savedObj = await res.json();
             console.log('Saved result:', savedObj);
 
-            // add to savedJobs array
             setSavedJobs((prev) => [
                 ...prev,
                 jobs.find((j) => j._id === jobId),
             ]);
 
-            // remove from deck
             setJobs((js) => js.filter((j) => j._id !== jobId));
         } catch (err) {
             console.error('Error saving job:', err);
@@ -90,13 +76,11 @@ export default function CardDeck({ savedJobs, setSavedJobs }) {
             const savedObj = await res.json();
             console.log('Dissmissed result:', savedObj);
 
-            // add to savedJobs array
             setSavedJobs((prev) => [
                 ...prev,
                 jobs.find((j) => j._id === jobId),
             ]);
 
-            // remove from deck
             setJobs((js) => js.filter((j) => j._id !== jobId));
         } catch (err) {
             console.error('Error dismissing job:', err);
@@ -105,36 +89,8 @@ export default function CardDeck({ savedJobs, setSavedJobs }) {
     };
 
     const handleSwipeRight = async (jobId) => {
-        // await saveJob(jobId);
         await handleSave(jobId);
-        // setSavedJobs(s => [...s, jobs.find(job => job.id === jobId)]);
-        // setJobs(j => j.filter(job => job.id !== jobId));
         getjobs();
-    };
-
-    const handleDelete = async (jobId) => {
-        const id = parseInt(jobId, 10);
-        const url = `http://127.0.0.1:8080/deleteJob/${id}`;
-        try {
-            const response = await fetch(url, {
-                method: "DELETE",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-            });
-            if (!response.ok) {
-                const errorText = await response.text();
-                throw new Error(`Failed to delete Job: ${errorText}`);
-            }
-            const result = await response.json();
-            console.log("Success:", result);
-            alert("Job deleted successfully!");
-            // Optionally clear the Robot ID input
-            setRobotId("");
-        } catch (error) {
-            console.error("Error:", error);
-            alert(`Error deleting Job: ${error.message}`);
-        }
     };
 
     return (

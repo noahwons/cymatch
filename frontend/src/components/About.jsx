@@ -15,6 +15,7 @@ const About = () => {
         <li>Noah Wons – <a href="mailto:wons123@iastate.edu" className="text-blue-600 underline">wons123@iastate.edu</a></li>
       </ul>
     </div>
+
   );
 };
 

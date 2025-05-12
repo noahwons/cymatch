@@ -1,11 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import './App.css';
-import JobCard from './components/JobCard';
-import SwipeableCard from './components/SwipeableCard';
-import { fetchJobs, deleteJob, saveJob } from './services/api';
-
-import aliceImg from './assets/alice.jpeg';
-import bobImg from './assets/bob.jpeg';
 import CardDeck from './components/CardDeck';
 import SavedJobs from './components/SavedJobs';
 import Profile from './components/Profile';

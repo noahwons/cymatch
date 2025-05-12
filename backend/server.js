@@ -40,7 +40,6 @@ app.get("/jobs", async (req, res) => {
             .toArray();
 
         const transformed = recent.map(job => {
-            // Safely convert _id to a hex string (or leave it if already a string)
             let id;
             if (job._id && typeof job._id.toHexString === "function") {
                 id = job._id.toHexString();
@@ -49,7 +48,7 @@ app.get("/jobs", async (req, res) => {
             }
             return {
                 ...job,
-                _id: id,    // now always a string
+                _id: id,
             };
         });
 
@@ -90,15 +89,12 @@ app.get("/jobs/saved", async (req, res) => {
 });
 
 function buildIdFilter(raw) {
-    // hex-style ObjectId?
     if (ObjectId.isValid(raw) && String(new ObjectId(raw)) === raw) {
         return { _id: new ObjectId(raw) };
     }
-    // decimal string?
     if (/^\d+$/.test(raw)) {
         return { _id: Number(raw) };
     }
-    // otherwise invalid
     return null;
 }
 
@@ -135,21 +131,3 @@ app.post("/job/:id/dismiss", async (req, res) => {
         res.status(500).json({ error: "Internal server error" });
     }
 });
-
-app.delete("/deleteJob/:id", async (req, res) => {
-    try {
-        await client.connect();
-        const result = await db
-            .collection("jobs")
-            .deleteOne({ id: Number(req.params.id) });
-        if (result.deletedCount === 0) {
-            return res.status(404).send({ error: "No job found with that ID" });
-        }
-        res.status(200).send(result);
-    } catch (error) {
-        console.error("Error deleting Job:", error);
-        res.status(500).send({ error: "An internal server error occurred" });
-    } finally {
-        await client.close();
-    }
-})

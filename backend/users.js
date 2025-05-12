@@ -3,16 +3,15 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const multer = require('multer');
 const router = express.Router();
-
+const fetch = require("node-fetch");
 const { MongoClient, ObjectId } = require("mongodb");
 
-const url = "mongodb://127.0.0.1:27017";
+const MONGO_URL = "mongodb://127.0.0.1:27017";
 const dbName = "cymatch";
-const client = new MongoClient(url);
+const client = new MongoClient(MONGO_URL);
 const db = client.db(dbName);
 
 const JWT_SECRET = process.env.JWT_SECRET || "dev-secret";
-
 
 router.post("/register", async (req, res) => {
     const { email, password } = req.body;
@@ -59,6 +58,14 @@ router.post("/login", async (req, res) => {
             JWT_SECRET,
             { expiresIn: "2h" }
         );
+
+        try {
+        } catch (err) {
+            return res.status(500).json({ error: "Could not load jobs" });
+        }
+
+
+
         res.json({ token });
     } catch (err) {
         console.error("LOGIN ERROR", err);

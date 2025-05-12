@@ -10,15 +10,10 @@ export default function CardDeck({ savedJobs, setSavedJobs }) {
     function getjobs() {
         setLoading(true);
         fetch("http://localhost:8080/jobs")
-            .then(res => {
-                if (!res.ok) throw new Error(res.statusText);
-                return res.json();
-            })
+            .then(res => res.json())
             .then(data => {
-                if (!Array.isArray(data)) {
-                    throw new Error("Expected an array but got " + typeof data);
-                }
-                setJobs(data);
+                const arr = Array.isArray(data) ? data : [data];
+                setJobs(arr);
             })
             .catch(err => {
                 console.error("Error fetching jobs:", err);
@@ -28,6 +23,7 @@ export default function CardDeck({ savedJobs, setSavedJobs }) {
                 setLoading(false);
             });
     }
+
 
     useEffect(() => {
         getjobs();

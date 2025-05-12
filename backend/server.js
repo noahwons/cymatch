@@ -36,8 +36,6 @@ async function fetchAndStoreJobs() {
 ; (async () => {
     await client.connect();
 
-
-
     await fetchAndStoreJobs();
 
     cron.schedule("0 * * * *", fetchAndStoreJobs);
